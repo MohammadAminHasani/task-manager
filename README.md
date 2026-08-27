@@ -2,16 +2,16 @@
 
 A simple and modern **Task Manager desktop application** built with **Python and Tkinter**.
 
-This project allows users to create, view, and delete tasks through a clean dark-themed graphical interface.
+This project allows users to create, view, and delete tasks through a clean dark-themed graphical interface.focused on productivity workflows, application logic, and structured data handling.
 
 ## Features
 
-* ✅ Add new tasks
-* ✅ View saved tasks in a list
-* ✅ Delete selected tasks
-* ✅ Modern dark UI design
-* ✅ User-friendly interface
-* ✅ Task status messages
+- Add new tasks
+-  View saved tasks in a list
+- Delete selected tasks
+- Modern dark UI design
+- User-friendly interface
+- Task status messages
 
 ## Technologies Used
 
@@ -24,7 +24,7 @@ This project allows users to create, view, and delete tasks through a clean dark
 
 ## How to Run
 
-Just simply download exe file and run it as adminstrator , enjoy!
+Just simply download exe file and run it as adminstrator , and enjoy!
 
 ## Future Improvements
 
