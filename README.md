@@ -26,14 +26,6 @@ This project allows users to create, view, and delete tasks through a clean dark
 
 Just simply download exe file and run it as adminstrator , and enjoy!
 
-## Future Improvements
-
-* 💾 Save tasks permanently using JSON or SQLite
-* 🔍 Add task search
-* ☑️ Add completed task status
-* 📅 Add deadlines and reminders
-* 🎨 Improve UI animations and design
-
 ## About
 
 This project was created as a practice project while learning Python GUI development with Tkinter.
