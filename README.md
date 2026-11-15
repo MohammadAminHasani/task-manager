@@ -1,64 +1,89 @@
+
 # Task Manager
 
-A desktop task-management application built with **Python** and **Tkinter**. It provides a simple dark-themed interface for keeping track of everyday tasks. Users can add tasks, mark them as complete or incomplete, and delete tasks they no longer need.
+**Author:** MohammadAmin Hasani  
+**Language:** Python  
+**GUI:** Tkinter
+
+## Video Demo
+
+[Watch the project demonstration](YOUR_VIDEO_LINK)
+
+## Description
+
+Task Manager is a desktop application built with Python and Tkinter to help users organize their everyday tasks. It provides a simple dark-themed graphical interface where users can add tasks, mark them as completed or incomplete, and delete tasks.
+
+I developed this project to combine several Python concepts in one practical application, including functions, data structures, file handling, exception handling, graphical user interfaces, and automated testing.
 
 ## Features
 
-- Add tasks with a title; empty task names are rejected.
-- Mark a task as complete and switch it back to incomplete.
-- Delete a selected task.
-- Save tasks to a JSON file so they are still available after the application closes.
-- Display clear status messages and handle missing selections.
-- Keep task-management functions separate from the graphical interface so they can be tested independently.
+- **Add Tasks:** Create tasks by entering a title. Empty titles are not accepted.
+- **Complete or Undo:** Change a task's completion status whenever needed.
+- **Delete Tasks:** Remove selected tasks from the list.
+- **Persistent Storage:** Save tasks in a JSON file so they remain available after closing the application.
+- **Input Validation:** Handle empty task titles and invalid task indexes.
+- **User Feedback:** Display messages when tasks are added, updated, or deleted, and when an action requires a selection.
 
-## How it works
+## How It Works
 
-The application stores each task as a dictionary containing a `title` and a Boolean `completed` value. The functions in `project.py` manage task creation, deletion, completion status, and JSON persistence. The Tkinter interface calls these functions and refreshes the task list when the data changes.
+Each task is represented by a Python dictionary containing two fields: `title` and `completed`. The application keeps tasks in a list and uses separate functions to add, delete, and update them.
 
-The data file is stored at `~/.task_manager/tasks.json` inside the current user's home directory. If the file does not exist yet, the application starts with an empty task list.
+Task data is stored in a JSON file at:
 
-## Project files
+`~/.task_manager/tasks.json`
 
-- `project.py`: core task functions and the `main()` function that starts the GUI.
-- `Taskmanager.py`: small launcher for the application.
-- `test_project.py`: automated tests for the task functions and file storage.
-- `Taskmanager.exe`: previously built Windows executable; rebuild it from the updated source before distributing a current executable.
-- `task.ico`: application icon asset.
+When the application starts, it loads previously saved tasks. If no data file exists, it starts with an empty list. Changes are saved to the JSON file so task information persists between sessions.
+
+The graphical interface is built with Tkinter. It displays the task list and provides buttons for the main operations. The core task-management functions are kept separate from the interface, making them easier to test independently.
+
+## Project Files
+
+- `project.py`: Contains the task-management functions, data storage logic, and graphical interface.
+- `Taskmanager.py`: Provides an alternative entry point for launching the application.
+- `test_project.py`: Contains automated tests written with pytest.
+- `task.ico`: Application icon.
+- `Taskmanager.exe`: Previously built Windows executable.
 
 ## Requirements
 
-- Python 3.10 or newer
-- Tkinter (included with most standard Python installations)
-- pytest (only needed to run the tests)
+- Python 3
+- Tkinter
+- pytest (only required for running tests)
 
-## Run the application
+## Installation and Usage
+
+Clone or download the repository, open a terminal in the project directory, and run:
 
 ```bash
 python project.py
 ```
 
-You can also run `python Taskmanager.py`.
+Alternatively, launch the application with:
 
-## Run the tests
+```bash
+python Taskmanager.py
+```
 
-Install pytest if it is not already installed:
+Enter a task in the input field and use the available buttons to manage your tasks.
+
+## Running Tests
+
+Install pytest if necessary:
 
 ```bash
 python -m pip install pytest
 ```
 
-Then run:
+Run the test suite:
 
 ```bash
 python -m pytest -q
 ```
 
-## Demo video
+The seven tests cover task creation, empty-title validation, task deletion, invalid indexes, completion status changes, saving and loading JSON data, and handling a missing data file.
 
-Before submitting to CS50P, replace the placeholder below with the public URL of your own demonstration video. Show the application working and explain the main design decisions. Keep the video within the course's time limit.
+## Design Decisions
 
-Video URL: TODO
+I separated the application's core functions from its graphical interface to make the code more organized and easier to test. JSON was selected as a lightweight, human-readable format for storing task data without requiring a database.
 
-## Author
-
-MohammadAmin
+Using pytest also allowed me to verify the main operations independently of the graphical interface.
