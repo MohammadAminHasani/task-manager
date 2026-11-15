@@ -1,90 +1,112 @@
 
+"""A simple task manager made with Python and Tkinter."""
+
+import json
 import tkinter as tk
 from tkinter import messagebox
-import json
 from pathlib import Path
 
-file_path = Path.home() / ".task_manager" / "tasks.json"
+
+DATA_FILE = Path.home() / ".task_manager" / "tasks.json"
 
 
-def add_task(tasks, task_name):
-    task_name = task_name.strip()
+def add_task(tasks, title):
+    """Add a new task."""
+    title = title.strip()
 
-    if not task_name:
+    if not title:
         raise ValueError("Task title cannot be empty.")
 
-    tasks.append({
-        "title": task_name,
+    task = {
+        "title": title,
         "completed": False
-    })
+    }
+
+    tasks.append(task)
     return tasks
 
-def delete_task(tasks, number):
-    if number < 0 or number >= len(tasks):
-        raise IndexError("Invalid task number.")
 
-    return tasks.pop(number)
+def delete_task(tasks, index):
+    """Delete a task using its index."""
+    if index < 0 or index >= len(tasks):
+        raise IndexError("Invalid task index.")
 
-
-def complete_task(tasks, number):
-    if number < 0 or number >= len(tasks):
-        return False
-
-    tasks[number]["completed"] = not tasks[number]["completed"]
-    return True
-
-def toggle_task(tasks, number):
-    if number < 0 or number >= len(tasks):
-        raise IndexError("Invalid task number.")
-
-    tasks[number]["completed"] = not tasks[number]["completed"]
-    return tasks[number]
+    return tasks.pop(index)
 
 
-def complete_task(tasks, number):
-    return toggle_task(tasks, number)
+def toggle_task(tasks, index):
+    """Change a task's completion status."""
+    if index < 0 or index >= len(tasks):
+        raise IndexError("Invalid task index.")
+
+    tasks[index]["completed"] = not tasks[index]["completed"]
+    return tasks[index]
 
 
-def load_tasks(path=file_path):
+def load_tasks(path=DATA_FILE):
+    """Load tasks from a JSON file."""
     path = Path(path)
 
     if not path.exists():
         return []
 
     with open(path, "r", encoding="utf-8") as file:
-        return json.load(file)
+        tasks = json.load(file)
 
-def save_tasks(tasks, path=file_path):
+    if not isinstance(tasks, list):
+        raise ValueError("Invalid task file.")
+
+    for task in tasks:
+        if (
+            not isinstance(task, dict)
+            or not isinstance(task.get("title"), str)
+            or not isinstance(task.get("completed"), bool)
+        ):
+            raise ValueError("Invalid task data.")
+
+    return tasks
+
+
+def save_tasks(tasks, path=DATA_FILE):
+    """Save tasks to a JSON file."""
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
 
     with open(path, "w", encoding="utf-8") as file:
-        json.dump(tasks, file, ensure_ascii=False, indent=2)
+        json.dump(tasks, file, indent=2, ensure_ascii=False)
 
 
 def main():
-    tasks = load_tasks()
+    """Start the task manager."""
+
+    try:
+        tasks = load_tasks()
+    except (OSError, ValueError, json.JSONDecodeError) as error:
+        messagebox.showerror("Error", f"Could not load tasks:\n{error}")
+        tasks = []
 
     window = tk.Tk()
     window.title("Task Manager")
     window.geometry("720x520")
+    window.minsize(560, 420)
     window.configure(bg="#0D0E14")
 
-    title = tk.Label(
+    heading = tk.Label(
         window,
         text="Task Manager",
         font=("Segoe UI", 23, "bold"),
         bg="#0D0E14",
         fg="white"
     )
-    title.pack(pady=20)
+    heading.pack(pady=20)
 
     task_entry = tk.Entry(
         window,
         font=("Segoe UI", 13),
         bg="#181A23",
         fg="white",
-        insertbackground="white"
+        insertbackground="white",
+        relief="flat"
     )
     task_entry.pack(fill="x", padx=40, ipady=10)
 
@@ -94,73 +116,90 @@ def main():
         bg="#181A23",
         fg="white",
         selectbackground="#7C5CFF",
-        borderwidth=0
+        selectforeground="white",
+        borderwidth=0,
+        highlightthickness=0
     )
     task_list.pack(fill="both", expand=True, padx=40, pady=20)
 
     status = tk.Label(
         window,
         text="",
+        font=("Segoe UI", 10),
         bg="#0D0E14",
         fg="#00E676"
     )
     status.pack(pady=5)
 
-    def show_tasks():
+    def refresh_list():
         task_list.delete(0, tk.END)
 
         for task in tasks:
-            if task["completed"]:
-                text = "✓  " + task["title"]
-            else:
-                text = "○  " + task["title"]
+            mark = "✓" if task["completed"] else "○"
+            task_list.insert(tk.END, f"{mark}  {task['title']}")
 
-            task_list.insert(tk.END, text)
+    def save_data():
+        try:
+            save_tasks(tasks)
+            return True
+        except OSError as error:
+            messagebox.showerror("Save Error", str(error))
+            return False
 
     def add_new_task():
         name = task_entry.get()
 
-        if not add_task(tasks, name):
-            messagebox.showwarning("Warning", "Please enter a task first.")
+        try:
+            add_task(tasks, name)
+        except ValueError:
+            messagebox.showwarning(
+                "Empty Task",
+                "Please enter a task first."
+            )
             task_entry.focus_set()
             return
 
-        save_tasks(tasks)
-        show_tasks()
-        task_entry.delete(0, tk.END)
-        status.config(text="Task added.")
+        if save_data():
+            refresh_list()
+            task_entry.delete(0, tk.END)
+            status.config(text="Task added.")
 
-    def get_selected():
+    def get_selected_task():
         selected = task_list.curselection()
 
         if not selected:
-            messagebox.showwarning("Warning", "Please select a task first.")
+            messagebox.showwarning(
+                "No Selection",
+                "Please select a task first."
+            )
             return None
 
         return selected[0]
 
-    def change_status():
-        number = get_selected()
+    def change_task_status():
+        index = get_selected_task()
 
-        if number is None:
+        if index is None:
             return
 
-        complete_task(tasks, number)
-        save_tasks(tasks)
-        show_tasks()
-        task_list.selection_set(number)
-        status.config(text="Task updated.")
+        toggle_task(tasks, index)
+
+        if save_data():
+            refresh_list()
+            task_list.selection_set(index)
+            status.config(text="Task updated.")
 
     def remove_task():
-        number = get_selected()
+        index = get_selected_task()
 
-        if number is None:
+        if index is None:
             return
 
-        delete_task(tasks, number)
-        save_tasks(tasks)
-        show_tasks()
-        status.config(text="Task deleted.")
+        delete_task(tasks, index)
+
+        if save_data():
+            refresh_list()
+            status.config(text="Task deleted.")
 
     buttons = tk.Frame(window, bg="#0D0E14")
     buttons.pack(pady=15)
@@ -168,10 +207,13 @@ def main():
     button_style = {
         "bg": "#7C5CFF",
         "fg": "white",
+        "activebackground": "#6242E8",
+        "activeforeground": "white",
         "font": ("Segoe UI", 10, "bold"),
         "relief": "flat",
         "padx": 15,
-        "pady": 10
+        "pady": 10,
+        "cursor": "hand2"
     }
 
     tk.Button(
@@ -184,7 +226,7 @@ def main():
     tk.Button(
         buttons,
         text="Complete / Undo",
-        command=change_status,
+        command=change_task_status,
         **button_style
     ).grid(row=0, column=1, padx=5)
 
@@ -197,7 +239,7 @@ def main():
 
     task_entry.bind("<Return>", lambda event: add_new_task())
 
-    show_tasks()
+    refresh_list()
     window.mainloop()
 
 
